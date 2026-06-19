@@ -16,6 +16,7 @@ class App {
 
     async init() {
         createIcons({ icons });
+        this.setupViewportProtection();
         try {
             // Standard WebsimSocket initialization
             window.room = new WebsimSocket(); 
@@ -33,6 +34,59 @@ class App {
         
         // Initial state
         this.switchTab('races');
+    }
+
+    setupViewportProtection() {
+        const stopGestureZoom = (event) => {
+            if (event.touches && event.touches.length > 1) {
+                event.preventDefault();
+            }
+        };
+
+        const stopDoubleTapZoom = (event) => {
+            if (event.type === 'dblclick' || event.type === 'gesturestart' || event.type === 'gesturechange' || event.type === 'gestureend') {
+                event.preventDefault();
+            }
+        };
+
+        document.addEventListener('touchstart', stopGestureZoom, { passive: false });
+        document.addEventListener('touchmove', stopGestureZoom, { passive: false });
+        document.addEventListener('touchend', stopGestureZoom, { passive: false });
+        document.addEventListener('dblclick', stopDoubleTapZoom, { passive: false });
+        document.addEventListener('gesturestart', stopDoubleTapZoom, { passive: false });
+        document.addEventListener('gesturechange', stopDoubleTapZoom, { passive: false });
+        document.addEventListener('gestureend', stopDoubleTapZoom, { passive: false });
+
+        window.addEventListener('wheel', (event) => {
+            if (event.ctrlKey) event.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && ['+', '-', '=', '0'].includes(event.key)) {
+                event.preventDefault();
+            }
+        });
+
+        const zoomTargets = [
+            document.documentElement,
+            document.body,
+            document.getElementById('app'),
+            document.getElementById('content-area'),
+            document.getElementById('bottom-tabs'),
+            ...document.querySelectorAll('button, input, select, textarea, canvas, .nav-tab, .tool-btn, .parts-tab, .tool-cat-btn, .modal, .modal-content')
+        ];
+
+        zoomTargets.filter(Boolean).forEach((element) => {
+            element.style.touchAction = 'none';
+            element.style.webkitTouchCallout = 'none';
+            element.style.webkitUserSelect = 'none';
+            element.style.userSelect = 'none';
+        });
+
+        const contentArea = document.getElementById('content-area');
+        if (contentArea) {
+            contentArea.style.touchAction = 'pan-y';
+        }
     }
 
     setupEventListeners() {
