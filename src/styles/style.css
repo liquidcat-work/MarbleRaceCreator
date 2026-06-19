@@ -1,0 +1,395 @@
+:root{
+  --bg:#0f1724;
+  --panel:#0b1220;
+  --muted:#9ca3af;
+  --accent:#38bdf8;
+  --accent-2:#60a5fa;
+  --border:#172033;
+  --border-strong:#22303d;
+  --danger:#ef4444;
+  --success:#10b981;
+  --tab-h:60px;
+  --rad:8px;
+  --grid:40px;
+  --control-bg: rgba(255,255,255,0.03);
+  --control-border: rgba(255,255,255,0.06);
+  --input-bg: rgba(255,255,255,0.02);
+  --input-text: #e6eef8;
+  --placeholder: #9aa6b6;
+}
+
+/* Prevent iOS / mobile from selecting page text while dragging.
+   Allow text selection on form inputs explicitly below. */
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow form controls to be selectable/editable */
+input, textarea, select, button, .modal, .modal * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Preserve explicit canvas touch behavior (editor/play canvases handle pointer events) */
+#editor-canvas, #play-canvas {
+  touch-action: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
+html,body{height:100%;width:100%;margin:0;padding:0;background:var(--bg);color:var(--input-text);font-family:system-ui,sans-serif;overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;}
+#content-area{flex:1;position:relative;overflow:auto;padding-bottom:calc(var(--tab-h) + 8px);}
+.tab-pane{display:none;padding:14px;min-height:100%;}
+.tab-pane.active{display:block;}
+.tab-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.tab-header h2{margin:0;font-size:20px;color:var(--input-text);}
+
+/* Bottom nav */
+#bottom-tabs{height:var(--tab-h);background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;}
+.nav-tab{background:transparent;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 8px;font-size:11px;cursor:pointer;}
+.nav-tab.active{color:var(--accent);border-top:3px solid rgba(56,189,248,0.12);padding-top:4px;}
+.nav-tab i{width:20px;height:20px;margin-bottom:4px;opacity:0.95}
+
+/* Cards & grid */
+.grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;position:relative;padding:8px;}
+.card-preview{aspect-ratio: 1 / 1;width:75%;max-width:140px;margin:8px auto 6px;background:var(--input-bg);border-radius:8px;height:auto;object-fit:cover;}
+.card-title{padding-top:8px;font-size:13px;color:var(--input-text);text-align:center}
+
+/* Buttons (dark controls) */
+button{cursor:pointer;border-radius:8px;font-weight:700;font-size:13px;border:1px solid var(--control-border);padding:8px 12px;background:var(--control-bg);color:var(--input-text);transition:transform .08s,opacity .08s}
+button:active{transform:translateY(1px);opacity:0.95}
+
+/* Primary / Secondary explicit dark styles */
+.primary-btn{
+  background: linear-gradient(180deg,var(--accent),var(--accent-2));
+  color:#02121a;
+  border-color: rgba(0,0,0,0.25);
+  box-shadow: 0 6px 18px rgba(56,189,248,0.08);
+}
+.secondary-btn{
+  background:transparent;
+  color:var(--input-text);
+  border:1px solid var(--control-border);
+}
+
+/* Inputs, selects and range sliders styled for dark mode */
+input[type="text"], input[type="number"], select, textarea {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--control-border);
+  padding: 8px 10px;
+  border-radius: 8px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  font-size: 13px;
+}
+select { background-image: linear-gradient(45deg, transparent 50%, var(--input-text) 50%), linear-gradient(135deg, var(--input-text) 50%, transparent 50%); background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; }
+
+/* Range slider dark styling */
+input[type="range"]{
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  width: 160px;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,0.02);
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--accent);
+  border:2px solid #02121a;margin-top:-6px;
+  box-shadow:0 6px 14px rgba(56,189,248,0.12);
+}
+input[type="range"]::-moz-range-track{
+  height:6px;background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));border-radius:6px;
+}
+input[type="range"]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #02121a;
+}
+
+/* Editor & Play full screens */
+.full-screen-view{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#06121a,#071122);z-index:100001}
+#editor-canvas,#play-canvas{width:100%;height:100%;display:block;background:transparent;touch-action:none;cursor:grab;}
+#editor-ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+#editor-ui > *{pointer-events:auto}
+
+/* Top bar */
+.editor-top-bar{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:8px;align-items:center}
+.spacer{flex:1}
+.play-btn{background:var(--success);color:#02120a;padding:8px 18px;border-radius:8px;font-weight:800}
+
+/* Tool palette */
+.tool-palette{position:absolute;left:12px;top:64px;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.02);backdrop-filter:blur(6px);padding:8px;border-radius:12px;border:1px solid var(--control-border);box-shadow:0 12px 30px rgba(0,0,0,0.6)}
+/* Compact category toggles (Simple / Advanced) */
+.tool-categories{display:flex;gap:6px;align-items:center;margin-bottom:4px;}
+.tool-categories .tool-cat-btn{
+  width:36px;
+  height:36px;
+  padding:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  background:transparent;
+  border:1px solid var(--control-border);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1;
+}
+.tool-categories .tool-cat-btn i{width:18px;height:18px;display:inline-block;opacity:0.95;}
+.tool-categories .tool-cat-btn.active{
+  background:rgba(56,189,248,0.06);
+  color:var(--accent);
+  border-color:rgba(56,189,248,0.12);
+}
+
+/* Ensure the main tool buttons remain as before */
+.tool-btn{width:48px;min-height:38px;padding:6px 4px;background:transparent;border:1px solid var(--control-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:8px;color:var(--accent-2)}
+.tool-btn i{width:16px;height:16px;}
+.tool-label{font-size:9px;}
+.tool-btn.active{background:rgba(96,165,250,0.08);border-color:rgba(96,165,250,0.12)}
+
+/* Parts shelf */
+#parts-shelf{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--border-strong);padding:12px}
+.parts-tab{background:transparent;border:0;padding:6px 10px;border-radius:14px;color:var(--muted);font-size:12px}
+.parts-tab.active{background:rgba(56,189,248,0.06);color:var(--accent)}
+.parts-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  align-items: center;
+}
+.part-item{min-width:54px;height:48px;background:var(--input-bg);border:1px solid var(--control-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--input-text);font-size:11px}
+.parts-list::-webkit-scrollbar { height: 8px; }
+.parts-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 8px; }
+.parts-list::-webkit-scrollbar-track { background: transparent; }
+
+.part-item{min-width:64px;height:56px;background:var(--input-bg);border:1px solid var(--control-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--input-text);font-size:12px}
+
+/* Modal and overlay adjustments for dark controls */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(2,6,23,0.6);z-index:100000}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg,var(--panel),#08121a);border-radius:12px;padding:18px;z-index:100002;width:90%;max-width:520px;border:1px solid var(--border-strong);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+.modal-content h3{margin-top:0;color:var(--input-text)}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.hidden{display:none !important}
+
+/* Play UI */
+.burger-menu{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.02);border:1px solid var(--control-border);padding:8px;border-radius:8px;color:var(--muted)}
+/* left-position variant for buttons that should sit at top-left (camera toggle moved here) */
+.burger-menu.left{left:12px;right:auto}
+.race-timer,.finish-countdown{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:var(--input-text);padding:6px 10px;border-radius:8px;font-family:monospace;font-size:16px}
+.finish-countdown{top:48px;color:var(--accent);font-size:22px}
+
+/* Screenshot button repositioned to bottom-left in play view and persistent-hide UI toggle */
+#btn-screenshot {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  right: auto;
+  top: auto;
+  z-index: 100005;
+}
+
+/* When this class is applied, visually hide most play UI elements but keep screenshot visible,
+   make the menu button invisible yet still interactive, and ensure the menu popup remains visible. */
+#play-view.hide-ui #play-ui > * {
+  /* visually hide children */
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  pointer-events: none; /* default: not interactive */
+}
+
+/* Keep screenshot fully visible and interactive */
+#play-view.hide-ui #btn-screenshot {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  display: block !important;
+}
+
+/* Make the menu button visually invisible but still accept touch/clicks */
+#play-view.hide-ui #btn-play-menu {
+  opacity: 0;            /* invisible */
+  pointer-events: auto;  /* still receives touch/click */
+  touch-action: manipulation;
+}
+
+/* Ensure the menu popup remains visible and interactive (override the parent's pointer-events: none) */
+#play-view.hide-ui #play-burger-content,
+#play-view.hide-ui #play-burger-content * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+/* If the play UI is hidden but the menu is open, make sure the popup z-index and background overlay are present */
+#play-view.hide-ui #play-burger-content.modal,
+#play-view.hide-ui #play-burger-content.modal .modal-content {
+  z-index: 200000 !important;
+}
+
+/* Settings list tweaks */
+.settings-list{display:flex;flex-direction:column;gap:12px}
+.setting-item{display:flex;justify-content:space-between;align-items:center}
+.setting-item label{font-weight:700;color:var(--input-text)}
+.setting-item input[type="range"]{flex:1;margin-left:12px}
+
+/* Marbles */
+.marble-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.marble-item{background:transparent;border:1px solid var(--control-border);border-radius:8px;padding:10px;display:flex;flex-direction:column;align-items:center;position:relative;color:var(--muted)}
+.marble-item.selected{border-color:rgba(56,189,248,0.12);background:rgba(96,165,250,0.03);color:var(--accent-2)}
+.marble-preview{width:40px;height:40px;border-radius:50%;margin-bottom:8px;box-shadow:inset -3px -3px 6px rgba(0,0,0,0.6)}
+.check-mark{position:absolute;top:6px;right:6px;color:var(--accent)}
+
+/* Preview canvases adjustments (keep them visible on dark) */
+.preview-canvas, .preview-square { background: var(--input-bg); border:1px solid var(--control-border); border-radius:8px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive tweaks */
+@media (max-width:600px) {
+  .grid-view { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parts-tab { padding: 4px 8px; font-size: 11px; }
+
+  /* Make editor and play full-screen controls more compact and reachable on mobile */
+  .editor-top-bar { top: 8px; left: 8px; right: 8px; gap: 6px; }
+  .tool-palette { left: 8px; top: 64px; padding: 6px; }
+  .tool-btn { width: 44px; height: 44px; }
+  .play-btn { padding: 6px 12px; font-size: 14px; }
+
+  /* Parts shelf: keep compact and allow horizontal scrolling without overflow */
+  #parts-shelf { padding: 8px; }
+  .parts-list { gap: 8px; padding-bottom: 8px; }
+
+  /* Marbles grid: larger touch targets and stacked label truncation */
+  .marble-item { padding: 12px; min-height: 84px; }
+  .marble-item .marble-preview { width:48px;height:48px; }
+  .marble-item span { font-size: 12px; max-width:72px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+
+  /* Bottom navigation: increase tappable area and center icons */
+  #bottom-tabs { height: var(--tab-h); }
+  .nav-tab { padding: 8px 4px; font-size: 10px; }
+
+  /* Modals: nearly full-bleed for mobile and easier dismissal */
+  .modal { width: 96%; max-width: 520px; left: 50%; transform: translate(-50%, -50%); padding: 14px; }
+  .modal-content { gap: 10px; }
+
+  /* Save world preview canvas shrink */
+  .preview-canvas, .preview-square { width: 100% !important; height: auto !important; }
+
+  /* Play UI: make buttons reachable and move screenshot to bottom-left for easier reach */
+  .burger-menu { top: 10px; right: 10px; padding: 8px; }
+  .burger-menu.left { left: 10px; right: auto; }
+  #btn-screenshot { left: 10px; bottom: 10px; right: auto; top: auto; }
+
+  /* Hide non-essential text in crowded areas */
+  .card-title { font-size: 13px; }
+  .tab-header h2 { font-size: 18px; }
+
+  /* Ensure editor canvas and UI don't overflow viewport height on mobile */
+  #editor-view .tool-palette, #editor-ui, #parts-shelf { box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+
+  /* Make modal overlay tappable area larger for easier dismissal */
+  .modal-overlay { touch-action: manipulation; }
+
+  /* Improve keyboard input visibility */
+  input, select, textarea { font-size: 14px; }
+}
+
+/* Small utility: focus outlines for keyboard users */
+button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid rgba(96,165,250,0.18);
+  outline-offset: 2px;
+}
+
+/* News Dashboard & Layout Modes */
+.news-dashboard {
+    display: grid;
+    gap: 12px;
+    height: 100%;
+    width: 100%;
+    padding: 4px;
+}
+
+.news-frame {
+    background: var(--input-bg);
+    border: 1px solid var(--control-border);
+    border-radius: var(--rad);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 12px;
+}
+
+.news-frame-header {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Layout Mode: HalfsHorizontal */
+.layout-HalfsHorizontal {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+/* Layout Mode: HalfsVertical */
+.layout-HalfsVertical {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+/* Layout Mode: Quarters */
+.layout-Quarters {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+/* Layout Mode: LeftHalfTwoQuartersRight */
+.layout-LeftHalfTwoQuartersRight {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.layout-LeftHalfTwoQuartersRight > .news-frame:first-child {
+    grid-row: 1 / 3;
+}
+
+/* Layout Mode: LeftHalfTwoQuartersLeft */
+.layout-LeftHalfTwoQuartersLeft {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.layout-LeftHalfTwoQuartersLeft > .news-frame:last-child {
+    grid-row: 1 / 3;
+}
+
+#news-list {
+    height: calc(100vh - var(--tab-h) - 60px);
+}
