@@ -7,6 +7,11 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "lucide": "^0.263.1",
+    "matter-js": "^2.0.20",
+    "poly-decomp": "^0.3.0"
+  },
   "devDependencies": {
     "vite": "^5.0.0"
   }
