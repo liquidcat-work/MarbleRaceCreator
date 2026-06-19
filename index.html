@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Marble Race Creator</title>
+    <link rel="stylesheet" href="src/styles/style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "matter-js": "https://esm.sh/matter-js@0.19.0",
+            "lucide": "https://esm.sh/lucide@0.344.0",
+            "poly-decomp": "https://esm.sh/poly-decomp@0.3.0"
+        }
+    }
+    </script>
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Main Content Area -->
+        <main id="content-area">
+            <!-- Tabs Content -->
+            <section id="tab-races" class="tab-pane active">
+                <div class="tab-header">
+                    <h2>My Races</h2>
+                    <button id="btn-new-race" class="primary-btn">New Race</button>
+                </div>
+                <div id="race-grid" class="grid-view">
+                    <!-- Cards populated by JS -->
+                </div>
+                <div id="race-empty-state" class="empty-state hidden">
+                    <p>No races yet. Tap Editor to create one.</p>
+                </div>
+            </section>
+
+            <section id="tab-community" class="tab-pane">
+                <div class="tab-header">
+                    <h2>Community</h2>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search races...">
+                    </div>
+                </div>
+                <div class="filter-bar">
+                    <button class="filter-btn active">Featured</button>
+                    <button class="filter-btn">Recent</button>
+                    <button class="filter-btn">Popular</button>
+                </div>
+                <div id="community-grid" class="grid-view">
+                    <!-- Mock community cards -->
+                </div>
+            </section>
+
+            <section id="tab-marbles" class="tab-pane">
+                <div class="tab-header">
+                    <h2>Marbles</h2>
+                    <div class="header-actions">
+                        <button id="btn-select-all" class="secondary-btn">Select All</button>
+                        <button id="btn-deselect-all" class="secondary-btn">Deselect All</button>
+                        <button id="btn-create-marble" class="primary-btn" title="Create Marble">Create Marble</button>
+                    </div>
+                </div>
+                <div id="marble-grid" class="marble-grid">
+                    <!-- Marble selections populated by JS -->
+                </div>
+            </section>
+
+            <section id="tab-settings" class="tab-pane">
+                <div class="tab-header"><h2>Settings</h2></div>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <label>Graphics Quality</label>
+                        <select id="setting-graphics">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Sound Volume</label>
+                        <input type="range" id="setting-sound" min="0" max="100" value="80">
+                    </div>
+                    <div class="setting-item">
+                        <label>Music Track</label>
+                        <select id="setting-music-track" aria-label="Music track" style="min-width:160px;padding:6px;border-radius:6px;border:1px solid var(--border);background:white;">
+                            <option value="none">None</option>
+                            <option value="Wii Party Soundtrack - Main Menu Music.mp3">Wii Party - Main Menu</option>
+                            <option value="Background Music.m4a">Background Music</option>
+                            <option value="Windows XP installation music [HD].mp3">Windows XP Install</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Music Volume</label>
+                        <input type="range" id="setting-music" min="0" max="100" value="50">
+                    </div>
+
+                    <div class="setting-item">
+                        <label>Debug: Render Colliders</label>
+                        <input type="checkbox" id="setting-debug-collider" aria-label="Render collider outlines for debugging">
+                    </div>
+
+                    <div class="setting-item">
+                        <label>Show Marble Trails (latest run)</label>
+                        <input type="checkbox" id="setting-show-trails" aria-label="Show marble trails from last play">
+                    </div>
+
+                    <hr>
+                    <div class="setting-item">
+                        <button class="secondary-btn">Login / Create Account</button>
+                    </div>
+                    <div class="setting-item footer-info" style="flex-direction:column;align-items:center;text-align:center;">
+                        <p style="margin:0;font-weight:700;">Version 1.0.0</p>
+                        <p style="margin:6px 0 0;"> 2024 LiquidCat Studios</p>
+                        <small style="display:block;margin-top:6px;color:var(--text-color);font-size:11px;opacity:0.9;">
+                            Roadmap: idea 2025-12-10; concept review 2025-12-17; project build 2025-12-24; AI-assisted work until 2026-01-14; release 2026-01-14.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-news" class="tab-pane">
+                <div class="tab-header"><h2>News</h2></div>
+                <div id="news-list" class="news-list">
+                    <!-- News items -->
+                </div>
+            </section>
+
+            <!-- Editor View (Special Handling) -->
+            <section id="editor-view" class="full-screen-view hidden">
+                <div id="editor-canvas-container">
+                    <canvas id="editor-canvas"></canvas>
+                </div>
+                
+                <!-- Editor UI -->
+                <div id="editor-ui">
+                    <div class="editor-top-bar">
+                        <button id="btn-save-world" class="icon-btn" title="Save"><i data-lucide="save"></i></button>
+                        <button id="btn-exit-editor" class="icon-btn" title="Exit"><i data-lucide="log-out"></i></button>
+
+                        <!-- Undo / Redo buttons -->
+                        <button id="btn-undo" class="icon-btn" title="Undo (Ctrl+Z)" style="margin-left:8px;">↶</button>
+                        <button id="btn-redo" class="icon-btn" title="Redo (Ctrl+Y)" style="margin-left:6px;">↷</button>
+
+                        <div id="selection-actions" class="hidden" style="display:flex; gap:8px; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:8px; backdrop-filter:blur(4px);">
+                            <button id="btn-mass-copy" class="icon-btn" title="Duplicate Selected"><i data-lucide="copy"></i></button>
+                            <button id="btn-mass-delete" class="icon-btn danger" title="Delete Selected" style="color:var(--danger)"><i data-lucide="trash-2"></i></button>
+                            <button id="btn-mass-settings" class="icon-btn" title="Edit All Settings"><i data-lucide="settings"></i></button>
+                        </div>
+                            <div class="spacer"></div>
+                        <button id="btn-ai-map" class="secondary-btn" title="AI Generate Map" style="margin-right:8px;">AI Map</button>
+                        <button id="btn-play-race" class="play-btn">PLAY <i data-lucide="play"></i></button>
+                    </div>
+
+                    <div id="tool-palette" class="tool-palette" role="toolbar" aria-label="Editor tools">
+                        <div class="tool-categories">
+                            <button class="tool-cat-btn active" data-category="simple" title="Simple" aria-label="Simple">
+                                <i data-lucide="square"></i>
+                            </button>
+                            <button class="tool-cat-btn" data-category="advanced" title="Advanced" aria-label="Advanced">
+                                <i data-lucide="settings"></i>
+                            </button>
+                        </div>
+                        <div id="tools-simple" class="tool-group">
+                            <button class="tool-btn active" data-tool="move" title="Move" aria-label="Move">
+                                <i data-lucide="move"></i>
+                                <span class="tool-label">Move</span>
+                            </button>
+                            <button class="tool-btn" data-tool="resize" title="Resize" aria-label="Resize">
+                                <i data-lucide="maximize-2"></i>
+                                <span class="tool-label">Resize</span>
+                            </button>
+                            <button class="tool-btn" data-tool="rotate" title="Rotate" aria-label="Rotate">
+                                <i data-lucide="rotate-cw"></i>
+                                <span class="tool-label">Rotate</span>
+                            </button>
+                            <button class="tool-btn" data-tool="delete" title="Delete" aria-label="Delete">
+                                <i data-lucide="trash-2"></i>
+                                <span class="tool-label">Delete</span>
+                            </button>
+                        </div>
+                        <div id="tools-advanced" class="tool-group hidden">
+                            <button class="tool-btn" data-tool="draw" title="Lasso Draw" aria-label="Lasso Draw">
+                                <i data-lucide="pencil"></i>
+                                <span class="tool-label">Draw</span>
+                            </button>
+
+                            <button class="tool-btn" data-tool="cut" title="Cut (snip polygon)" aria-label="Cut">
+                                <i data-lucide="scissors"></i>
+                                <span class="tool-label">Cut</span>
+                            </button>
+                            <button class="tool-btn" data-tool="vertex" title="Vertex Editor" aria-label="Vertex Editor">
+                                <i data-lucide="edit-3"></i>
+                                <span class="tool-label">Vertex</span>
+                            </button>
+                            <button class="tool-btn" data-tool="settings" title="Settings" aria-label="Settings">
+                                <i data-lucide="settings"></i>
+                                <span class="tool-label">Settings</span>
+                            </button>
+                            <button class="tool-btn" data-tool="wire" title="Wire Tool" aria-label="Wire Tool">
+                                <i data-lucide="share-2"></i>
+                                <span class="tool-label">Wire</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="parts-shelf">
+                        <div class="parts-tabs">
+                            <button class="parts-tab active" data-category="basic">Basic</button>
+                            <button class="parts-tab" data-category="interactive">Interactive</button>
+                            <button class="parts-tab" data-category="dynamic">Dynamic</button>
+                            <button class="parts-tab" data-category="spawners">Spawners</button>
+                        </div>
+                        <div id="parts-list" class="parts-list">
+                            <!-- Populated based on category -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Play Mode View -->
+            <section id="play-view" class="full-screen-view hidden">
+                <canvas id="play-canvas"></canvas>
+                
+                <div id="play-ui">
+                    <button id="btn-toggle-camera" class="burger-menu left" title="Toggle Camera">Camera: Free</button>
+                    <button id="btn-play-menu" class="burger-menu"><i data-lucide="menu"></i></button>
+                    <button id="btn-screenshot" class="burger-menu" title="4K Screenshot">Screenshot</button>
+
+                    <div id="race-timer" class="race-timer hidden">00:00</div>
+                    <div id="finish-countdown" class="finish-countdown hidden">20</div>
+                    
+                    <div id="play-burger-content" class="modal hidden">
+                        <div class="modal-content">
+                            <h3>Pause Menu</h3>
+                            <button id="btn-restart-race">Restart Race</button>
+
+                            <div class="speed-controls">
+                                <button id="btn-speed-minus">-</button>
+                                <span id="current-speed">1x</span>
+                                <button id="btn-speed-plus">+</button>
+                            </div>
+
+                            <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+                                <input type="checkbox" id="chk-hide-ui-play" />
+                                <label for="chk-hide-ui-play" style="font-weight:700;">Hide UI in Play Mode</label>
+                            </div>
+
+                            <button id="btn-exit-play" class="danger" style="margin-top:10px;">Exit to Menu</button>
+                            <button id="btn-close-burger">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Screen -->
+                <div id="results-screen" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>Race Complete</h2>
+                        <div id="results-list" class="results-list">
+                            <!-- Populated with placements -->
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btn-results-close">Close</button>
+                            <button id="btn-results-editor" class="primary-btn">Return to Editor</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="modal-overlay hidden" style="z-index: 200000; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+            <div class="loader-spinner" style="width: 50px; height: 50px; border: 4px solid var(--border-strong); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <div style="color: var(--accent); font-weight: 700; font-size: 18px; letter-spacing: 1px;">PREPARING RACE...</div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav id="bottom-tabs">
+            <button class="nav-tab active" data-tab="races"><i data-lucide="flag"></i><span>Races</span></button>
+            <button class="nav-tab" data-tab="community"><i data-lucide="users"></i><span>Community</span></button>
+            <button class="nav-tab" data-tab="editor"><i data-lucide="layout"></i><span>Editor</span></button>
+            <button class="nav-tab" data-tab="marbles"><i data-lucide="circle"></i><span>Marbles</span></button>
+            <button class="nav-tab" data-tab="news"><i data-lucide="newspaper"></i><span>News</span></button>
+            <button class="nav-tab" data-tab="settings"><i data-lucide="settings"></i><span>Settings</span></button>
+        </nav>
+
+        <!-- Overlay Modals -->
+        <div id="modal-overlay" class="modal-overlay hidden"></div>
+        
+        <div id="part-settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3 id="settings-part-name">Part Settings</h3>
+                <div id="settings-fields"></div>
+                <div class="modal-footer">
+                    <button id="btn-save-settings" class="primary-btn">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="save-world-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Save World</h3>
+                <input type="text" id="input-world-name" placeholder="World Name">
+                <div class="preview-box">
+                    <canvas id="preview-canvas" width="200" height="200"></canvas>
+                    <p>Auto-generated preview</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-cancel-save">Cancel</button>
+                    <button id="btn-confirm-save" class="primary-btn">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account/Login Modal -->
+        <div id="account-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3 id="account-modal-title">Login / Create Account</h3>
+                <div id="account-fields">
+                    <label>Username</label>
+                    <input type="text" id="account-username" placeholder="Enter username">
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-account-cancel">Cancel</button>
+                    <button id="btn-account-save" class="primary-btn">Save Account</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workshop Entry Detail Modal (keeps only close control; per-entry actions are rendered inside the dynamic modal content to avoid duplicates) -->
+        <div id="workshop-entry-modal" class="modal hidden" aria-hidden="true">
+            <div class="modal-content">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h3 id="workshop-entry-title">Entry</h3>
+                    <button id="workshop-entry-close" class="secondary-btn">Close</button>
+                </div>
+                <div id="workshop-entry-body" style="margin-top:10px;max-height:50vh;overflow:auto;">
+                    <!-- Populated dynamically with entry preview, metadata and actions (per-entry Download/Import placed here) -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/scripts/main.js"></script>
+</body>
+</html>
